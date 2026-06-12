@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: job-search-command-center
+    runtime: node
+    plan: free
+    buildCommand: npm install --prefix server && npm run build
+    startCommand: npm start
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: NODE_VERSION
+        value: 20
