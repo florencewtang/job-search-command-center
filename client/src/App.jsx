@@ -12,7 +12,12 @@ function jobKey(job) {
 
 export default function App() {
   const [jobs, setJobs] = useState([]);
-  const [assessments, setAssessments] = useState({});
+  const [assessments, setAssessments] = useState(() => {
+    try {
+      const stored = localStorage.getItem('jobSearchAssessments');
+      return stored ? JSON.parse(stored) : {};
+    } catch { return {}; }
+  });
   const [assessing, setAssessing] = useState({});
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState([]);
@@ -40,8 +45,30 @@ export default function App() {
     return stored ? JSON.parse(stored) : [];
   });
 
-  const [trackerRows, setTrackerRows] = useState([]);
-  const [manualTiers, setManualTiers] = useState({});
+  const [trackerRows, setTrackerRows] = useState(() => {
+    try {
+      const stored = localStorage.getItem('jobSearchTrackerRows');
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
+  const [manualTiers, setManualTiers] = useState(() => {
+    try {
+      const stored = localStorage.getItem('jobSearchManualTiers');
+      return stored ? JSON.parse(stored) : {};
+    } catch { return {}; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('jobSearchAssessments', JSON.stringify(assessments));
+  }, [assessments]);
+
+  useEffect(() => {
+    localStorage.setItem('jobSearchTrackerRows', JSON.stringify(trackerRows));
+  }, [trackerRows]);
+
+  useEffect(() => {
+    localStorage.setItem('jobSearchManualTiers', JSON.stringify(manualTiers));
+  }, [manualTiers]);
 
   const loadJobs = useCallback(async () => {
     setLoading(true);
