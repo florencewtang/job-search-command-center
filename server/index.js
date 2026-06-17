@@ -2,10 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const GMAIL_APPLICATIONS_PATH = path.join(__dirname, 'data', 'gmail-applications.json');
 
 dotenv.config();
 
@@ -286,6 +288,19 @@ app.post('/api/assess-url', async (req, res) => {
   } catch (err) {
     console.error('Error assessing job from URL:', err);
     res.status(500).json({ error: 'Failed to assess job from URL' });
+  }
+});
+
+app.get('/api/gmail-applications', (req, res) => {
+  try {
+    if (!fs.existsSync(GMAIL_APPLICATIONS_PATH)) {
+      return res.json({ applications: [], lastSynced: null });
+    }
+    const raw = fs.readFileSync(GMAIL_APPLICATIONS_PATH, 'utf-8');
+    res.json(JSON.parse(raw));
+  } catch (err) {
+    console.error('Error reading Gmail applications:', err);
+    res.status(500).json({ error: 'Failed to read Gmail applications' });
   }
 });
 

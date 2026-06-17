@@ -26,6 +26,10 @@ export default function App() {
   const [urlInput, setUrlInput] = useState('');
   const [assessingUrl, setAssessingUrl] = useState(false);
   const [urlError, setUrlError] = useState(null);
+  const [gmailLastSync, setGmailLastSync] = useState(() => {
+    const stored = localStorage.getItem('jobSearchGmailLastSync');
+    return stored ? new Date(stored) : null;
+  });
   const [seenJobKeys, setSeenJobKeys] = useState(() => {
     const stored = localStorage.getItem('jobSearchSeenJobs');
     return stored ? JSON.parse(stored) : {};
@@ -85,9 +89,69 @@ export default function App() {
     localStorage.setItem('jobSearchLastRefresh', now.toISOString());
   }, []);
 
+  const syncGmailApplications = useCallback(async () => {
+    try {
+      const res = await fetch('/api/gmail-applications');
+      if (!res.ok) return;
+      const data = await res.json();
+      const entries = data.applications || [];
+
+      const updates = [];
+
+      setTrackerRows((prev) => {
+        const next = [...prev];
+        for (const entry of entries) {
+          const matchKey = `${entry.company}-${entry.role}`.toLowerCase();
+          const existingIndex = next.findIndex(
+            (row) => `${row.company}-${row.role}`.toLowerCase() === matchKey
+          );
+          if (existingIndex >= 0) {
+            const prevStatus = next[existingIndex].status;
+            next[existingIndex] = {
+              ...next[existingIndex],
+              status: entry.status || prevStatus,
+              dateApplied: entry.dateApplied || next[existingIndex].dateApplied,
+            };
+            if (entry.status && entry.status !== prevStatus) {
+              updates.push({ company: entry.company, role: entry.role, status: entry.status });
+            }
+          } else {
+            next.push({
+              id: crypto.randomUUID(),
+              company: entry.company,
+              role: entry.role,
+              status: entry.status || 'Applied',
+              dateApplied: entry.dateApplied || '',
+              nextAction: '',
+              notes: '',
+            });
+            updates.push({
+              company: entry.company,
+              role: entry.role,
+              status: entry.status || 'Applied',
+            });
+          }
+        }
+        return next;
+      });
+
+      if (updates.length > 0) {
+        setRecentStatusUpdates(updates);
+        localStorage.setItem('jobSearchRecentUpdates', JSON.stringify(updates));
+      }
+
+      const now = new Date();
+      setGmailLastSync(now);
+      localStorage.setItem('jobSearchGmailLastSync', now.toISOString());
+    } catch (err) {
+      console.error('Failed to sync Gmail applications:', err);
+    }
+  }, []);
+
   useEffect(() => {
     loadJobs();
-  }, [loadJobs]);
+    syncGmailApplications();
+  }, [loadJobs, syncGmailApplications]);
 
   // Auto-refresh once per day at/after 9am.
   useEffect(() => {
@@ -96,10 +160,11 @@ export default function App() {
       const lastDate = lastRefresh ? lastRefresh.toDateString() : null;
       if (now.getHours() >= 9 && lastDate !== now.toDateString()) {
         loadJobs();
+        syncGmailApplications();
       }
     }, 60000);
     return () => clearInterval(interval);
-  }, [lastRefresh, loadJobs]);
+  }, [lastRefresh, loadJobs, syncGmailApplications]);
 
   const assessJob = useCallback(async (job) => {
     const key = jobKey(job);
@@ -354,6 +419,12 @@ export default function App() {
               Last refresh:{' '}
               {lastRefresh
                 ? lastRefresh.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+                : 'never'}
+            </p>
+            <p className="text-slate-600">
+              Gmail sync:{' '}
+              {gmailLastSync
+                ? gmailLastSync.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
                 : 'never'}
             </p>
           </div>

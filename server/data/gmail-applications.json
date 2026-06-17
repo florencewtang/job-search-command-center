@@ -1,0 +1,65 @@
+{
+  "lastSynced": "2026-06-12T00:00:00.000Z",
+  "applications": [
+    {
+      "company": "Okta",
+      "role": "Web Production, Senior Manager",
+      "status": "Closed",
+      "dateApplied": "2026-03-01"
+    },
+    {
+      "company": "Motive",
+      "role": "Senior Manager, Web Strategy",
+      "status": "Interviewing",
+      "dateApplied": "2026-04-16"
+    },
+    {
+      "company": "BMO",
+      "role": "Director, Digital Execution & Operations, Global Asset Management",
+      "status": "Applied",
+      "dateApplied": "2026-04-25"
+    },
+    {
+      "company": "Samsara",
+      "role": "Senior Web Program Manager",
+      "status": "Applied",
+      "dateApplied": "2026-04-30"
+    },
+    {
+      "company": "Boomi",
+      "role": "Web Production Coordinator",
+      "status": "Closed",
+      "dateApplied": "2026-05-08"
+    },
+    {
+      "company": "Fetch",
+      "role": "Web Production Manager",
+      "status": "Closed",
+      "dateApplied": "2026-05-15"
+    },
+    {
+      "company": "Stripe",
+      "role": "Design Program Manager, AI",
+      "status": "Closed",
+      "dateApplied": "2026-05-16"
+    },
+    {
+      "company": "LeadVenture",
+      "role": "Digital Experience Manager",
+      "status": "Closed",
+      "dateApplied": "2026-05-18"
+    },
+    {
+      "company": "Stripe",
+      "role": "Forward Deployed AI Accelerator, Marketing",
+      "status": "Applied",
+      "dateApplied": "2026-05-19"
+    },
+    {
+      "company": "Ontario Teachers' Pension Plan",
+      "role": "Web Publishing, Content Governance & Analytics Specialist",
+      "status": "Interviewing",
+      "dateApplied": "2026-05-28"
+    }
+  ]
+}
