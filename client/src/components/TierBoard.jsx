@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import JobCard from './JobCard.jsx';
 
 const TIERS = [
@@ -34,7 +34,10 @@ export default function TierBoard({
   manualTiers = {},
   onSetManualTier,
   trackedKeys = new Set(),
+  focusedJobKey = null,
+  onFocusCleared,
 }) {
+  const cardRefs = useRef({});
   const filteredJobs =
     companyFilter === 'all' ? jobs : jobs.filter((job) => job.company === companyFilter);
 
@@ -82,6 +85,26 @@ export default function TierBoard({
     });
   }
 
+  useEffect(() => {
+    if (!focusedJobKey) return;
+    // Find which section the job is in and expand it
+    for (const [section, jobs] of Object.entries(grouped)) {
+      if (jobs.some((j) => jobKey(j) === focusedJobKey)) {
+        setCollapsed((prev) => ({ ...prev, [section]: false }));
+        break;
+      }
+    }
+    // Scroll after a tick to let the section expand
+    const timer = setTimeout(() => {
+      const el = cardRefs.current[focusedJobKey];
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        onFocusCleared?.();
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [focusedJobKey]);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -123,36 +146,42 @@ export default function TierBoard({
                     {grouped[tier.key].map((job) => {
                       const key = jobKey(job);
                       const hasOverride = !!manualTiers[key];
+                      const isFocused = focusedJobKey === key;
                       return (
-                        <JobCard
+                        <div
                           key={key}
-                          job={job}
-                          assessment={assessments[key]}
-                          isAssessing={!!assessing[key]}
-                          onAssess={onAssess}
-                          onAddToTracker={onAddToTracker}
-                          isTracked={trackedKeys.has(`${job.company}-${job.title}`.toLowerCase())}
-                          tierOverrideControl={
-                            hasOverride ? (
-                              <div className="flex items-center gap-2">
-                                <label className="text-xs text-slate-500">Move to:</label>
-                                <select
-                                  value={tier.key}
-                                  onChange={(e) => {
-                                    const val = e.target.value;
-                                    onSetManualTier(key, val === '' ? null : val);
-                                  }}
-                                  className="text-xs border border-slate-300 rounded-md px-2 py-1 bg-white"
-                                >
-                                  <option value="">Reset (auto)</option>
-                                  <option value="tier1">Tier 1</option>
-                                  <option value="tier2">Tier 2</option>
-                                  <option value="passed">Passed</option>
-                                </select>
-                              </div>
-                            ) : null
-                          }
-                        />
+                          ref={(el) => { cardRefs.current[key] = el; }}
+                          className={isFocused ? 'ring-2 ring-indigo-400 rounded-lg' : ''}
+                        >
+                          <JobCard
+                            job={job}
+                            assessment={assessments[key]}
+                            isAssessing={!!assessing[key]}
+                            onAssess={onAssess}
+                            onAddToTracker={onAddToTracker}
+                            isTracked={trackedKeys.has(`${job.company}-${job.title}`.toLowerCase())}
+                            tierOverrideControl={
+                              hasOverride ? (
+                                <div className="flex items-center gap-2">
+                                  <label className="text-xs text-slate-500">Move to:</label>
+                                  <select
+                                    value={tier.key}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      onSetManualTier(key, val === '' ? null : val);
+                                    }}
+                                    className="text-xs border border-slate-300 rounded-md px-2 py-1 bg-white"
+                                  >
+                                    <option value="">Reset (auto)</option>
+                                    <option value="tier1">Tier 1</option>
+                                    <option value="tier2">Tier 2</option>
+                                    <option value="passed">Passed</option>
+                                  </select>
+                                </div>
+                              ) : null
+                            }
+                          />
+                        </div>
                       );
                     })}
                   </div>
@@ -177,16 +206,22 @@ export default function TierBoard({
                 <div className="space-y-3">
                   {grouped.unassessed.map((job) => {
                     const key = jobKey(job);
+                    const isFocused = focusedJobKey === key;
                     return (
-                      <JobCard
+                      <div
                         key={key}
-                        job={job}
-                        assessment={assessments[key]}
-                        isAssessing={!!assessing[key]}
-                        onAssess={onAssess}
-                        onAddToTracker={onAddToTracker}
-                        isTracked={trackedKeys.has(`${job.company}-${job.title}`.toLowerCase())}
-                      />
+                        ref={(el) => { cardRefs.current[key] = el; }}
+                        className={isFocused ? 'ring-2 ring-indigo-400 rounded-lg' : ''}
+                      >
+                        <JobCard
+                          job={job}
+                          assessment={assessments[key]}
+                          isAssessing={!!assessing[key]}
+                          onAssess={onAssess}
+                          onAddToTracker={onAddToTracker}
+                          isTracked={trackedKeys.has(`${job.company}-${job.title}`.toLowerCase())}
+                        />
+                      </div>
                     );
                   })}
                 </div>
@@ -218,9 +253,14 @@ export default function TierBoard({
                 <div className="space-y-3">
                   {grouped.needsReview.map((job) => {
                     const key = jobKey(job);
+                    const isFocused = focusedJobKey === key;
                     return (
-                      <JobCard
+                      <div
                         key={key}
+                        ref={(el) => { cardRefs.current[key] = el; }}
+                        className={isFocused ? 'ring-2 ring-indigo-400 rounded-lg' : ''}
+                      >
+                      <JobCard
                         job={job}
                         assessment={assessments[key]}
                         isAssessing={!!assessing[key]}
@@ -247,6 +287,7 @@ export default function TierBoard({
                           </div>
                         }
                       />
+                      </div>
                     );
                   })}
                 </div>

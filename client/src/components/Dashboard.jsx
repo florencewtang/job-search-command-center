@@ -24,6 +24,7 @@ export default function Dashboard({
   tier1Count = 0,
   tier2Count = 0,
   recentStatusUpdates = [],
+  onJobClick,
 }) {
   const [showNewJobs, setShowNewJobs] = useState(false);
 
@@ -45,22 +46,17 @@ export default function Dashboard({
       {showNewJobs && newJobsList.length > 0 && (
         <div className="mb-4 border border-slate-100 rounded-md divide-y divide-slate-100">
           {newJobsList.map((job) => (
-            <div key={`${job.company}-${job.id}`} className="flex items-center justify-between px-4 py-2">
+            <button
+              key={`${job.company}-${job.id}`}
+              onClick={() => { onJobClick?.(job); setShowNewJobs(false); }}
+              className="w-full flex items-center justify-between px-4 py-2 text-left hover:bg-slate-50 transition-colors"
+            >
               <div>
                 <span className="text-sm font-medium text-slate-800">{job.title}</span>
                 <span className="text-xs text-slate-400 ml-2">{job.company}</span>
               </div>
-              {job.absolute_url && (
-                <a
-                  href={job.absolute_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-indigo-600 hover:underline ml-4 shrink-0"
-                >
-                  View ↗
-                </a>
-              )}
-            </div>
+              <span className="text-xs text-indigo-500 ml-4 shrink-0">View assessment ↗</span>
+            </button>
           ))}
         </div>
       )}

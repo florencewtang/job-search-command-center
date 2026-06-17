@@ -41,6 +41,7 @@ export default function App() {
   });
   const [newJobsToday, setNewJobsToday] = useState(0);
   const [newJobsList, setNewJobsList] = useState([]);
+  const [focusedJobKey, setFocusedJobKey] = useState(null);
   const [recentStatusUpdates, setRecentStatusUpdates] = useState(() => {
     const stored = localStorage.getItem('jobSearchRecentUpdates');
     return stored ? JSON.parse(stored) : [];
@@ -486,6 +487,7 @@ export default function App() {
             tier1Count={tier1Count}
             tier2Count={tier2Count}
             recentStatusUpdates={recentStatusUpdates}
+            onJobClick={(job) => { setActiveTab('tiers'); setFocusedJobKey(jobKey(job)); }}
           />
         </div>
 
@@ -527,6 +529,8 @@ export default function App() {
               manualTiers={manualTiers}
               onSetManualTier={setManualTier}
               trackedKeys={trackedKeys}
+              focusedJobKey={focusedJobKey}
+              onFocusCleared={() => setFocusedJobKey(null)}
             />
           ) : (
             <JobFeed
