@@ -29,7 +29,12 @@ const ALLOWED_COMPANIES = new Set([
   'dropbox',
   'squarespace',
   'asana',
+  'relay',
 ]);
+
+const ASHBY_SLUGS = {
+  relay: 'relayfi',
+};
 
 // Maps the company key used throughout the app to its actual Greenhouse board token.
 const GREENHOUSE_SLUGS = {
@@ -176,6 +181,28 @@ app.get('/api/jobs/:company', async (req, res) => {
   }
 
   try {
+    if (ASHBY_SLUGS[company]) {
+      const slug = ASHBY_SLUGS[company];
+      const response = await fetch(
+        `https://api.ashbyhq.com/posting-api/job-board/${slug}?includeCompensation=true`
+      );
+      if (!response.ok) {
+        return res.status(response.status).json({ error: `Ashby API returned ${response.status} for ${company}` });
+      }
+      const data = await response.json();
+      const jobs = (data.jobs || [])
+        .map((job) => ({
+          id: job.id,
+          title: job.title,
+          absolute_url: `https://jobs.ashbyhq.com/${slug}/${job.id}`,
+          location: { name: job.location },
+          locationStatus: classifyLocation(job.location),
+          content: htmlToText(job.descriptionHtml || ''),
+        }))
+        .filter((job) => job.locationStatus !== 'excluded');
+      return res.json(jobs);
+    }
+
     const slug = GREENHOUSE_SLUGS[company] || company;
     const response = await fetch(
       `https://boards-api.greenhouse.io/v1/boards/${slug}/jobs?content=true`
@@ -194,7 +221,7 @@ app.get('/api/jobs/:company', async (req, res) => {
     res.json(jobs);
   } catch (err) {
     console.error(`Error fetching jobs for ${company}:`, err);
-    res.status(500).json({ error: 'Failed to fetch jobs from Greenhouse' });
+    res.status(500).json({ error: 'Failed to fetch jobs' });
   }
 });
 
