@@ -42,6 +42,7 @@ export default function TierBoard({
     tier1: false,
     tier2: false,
     passed: true,
+    unassessed: true,
     needsReview: true,
   });
 
@@ -140,31 +141,35 @@ export default function TierBoard({
 
           {grouped.unassessed.length > 0 && (
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <button
+                onClick={() => toggleCollapsed('unassessed')}
+                className="w-full flex items-center gap-2 mb-2 text-left"
+              >
                 <span className="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-300">
                   Unassessed
                 </span>
                 <p className="text-xs text-slate-500">Run "Assess Fit" to place these in a tier</p>
-                <span className="text-xs text-slate-400 ml-auto">
-                  {grouped.unassessed.length}
-                </span>
-              </div>
-              <div className="space-y-3">
-                {grouped.unassessed.map((job) => {
-                  const key = jobKey(job);
-                  return (
-                    <JobCard
-                      key={key}
-                      job={job}
-                      assessment={assessments[key]}
-                      isAssessing={!!assessing[key]}
-                      onAssess={onAssess}
-                      onAddToTracker={onAddToTracker}
-                      isTracked={trackedKeys.has(`${job.company}-${job.title}`.toLowerCase())}
-                    />
-                  );
-                })}
-              </div>
+                <span className="text-xs text-slate-400 ml-auto">{grouped.unassessed.length}</span>
+                <span className="text-xs text-slate-400">{collapsed.unassessed ? '▸' : '▾'}</span>
+              </button>
+              {!collapsed.unassessed && (
+                <div className="space-y-3">
+                  {grouped.unassessed.map((job) => {
+                    const key = jobKey(job);
+                    return (
+                      <JobCard
+                        key={key}
+                        job={job}
+                        assessment={assessments[key]}
+                        isAssessing={!!assessing[key]}
+                        onAssess={onAssess}
+                        onAddToTracker={onAddToTracker}
+                        isTracked={trackedKeys.has(`${job.company}-${job.title}`.toLowerCase())}
+                      />
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
