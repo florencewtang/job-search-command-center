@@ -4,7 +4,7 @@ import TierBoard from './components/TierBoard.jsx';
 import ApplicationTracker from './components/ApplicationTracker.jsx';
 import Dashboard from './components/Dashboard.jsx';
 
-const COMPANIES = ['stripe', 'doordash', 'dropbox', 'squarespace', 'asana', 'relay'];
+const COMPANIES = ['stripe', 'doordash', 'dropbox', 'squarespace', 'asana', 'relay', 'wealthsimple'];
 
 function jobKey(job) {
   return `${job.company}-${job.id}`;

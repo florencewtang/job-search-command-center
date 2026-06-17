@@ -30,10 +30,12 @@ const ALLOWED_COMPANIES = new Set([
   'squarespace',
   'asana',
   'relay',
+  'wealthsimple',
 ]);
 
 const ASHBY_SLUGS = {
   relay: 'relayfi',
+  wealthsimple: 'wealthsimple',
 };
 
 // Maps the company key used throughout the app to its actual Greenhouse board token.
