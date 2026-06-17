@@ -248,6 +248,8 @@ export default function App() {
       setJobs((prev) => [job, ...prev]);
       setAssessments((prev) => ({ ...prev, [jobKey(job)]: data.assessment }));
       setUrlInput('');
+      setActiveTab('tiers');
+      setFocusedJobKey(jobKey(job));
     } catch (err) {
       setUrlError(err.message);
     } finally {
