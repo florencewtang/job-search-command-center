@@ -44,7 +44,7 @@ export default function Dashboard({
       </div>
 
       {showNewJobs && newJobsList.length > 0 && (
-        <div className="mb-4 border border-slate-100 rounded-md divide-y divide-slate-100">
+        <div className="mb-4 border border-slate-100 rounded-md divide-y divide-slate-100 max-h-60 overflow-y-auto">
           {newJobsList.map((job) => (
             <button
               key={`${job.company}-${job.id}`}
