@@ -319,11 +319,21 @@ export default function App() {
   }, [updateTrackerRow]);
 
   const setManualTier = useCallback((key, tier) => {
-    setManualTiers((prev) => ({ ...prev, [key]: tier }));
+    setManualTiers((prev) => {
+      if (tier == null) {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      }
+      return { ...prev, [key]: tier };
+    });
   }, []);
 
+  const CLOSED_STATUSES = new Set(['Closed', 'Passed']);
   const trackedKeys = new Set(
-    trackerRows.map((row) => `${row.company}-${row.role}`.toLowerCase())
+    trackerRows
+      .filter((row) => !CLOSED_STATUSES.has(row.status))
+      .map((row) => `${row.company}-${row.role}`.toLowerCase())
   );
 
   let tier1Count = 0;

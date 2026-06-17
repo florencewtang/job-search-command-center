@@ -122,6 +122,7 @@ export default function TierBoard({
                   <div className="space-y-3">
                     {grouped[tier.key].map((job) => {
                       const key = jobKey(job);
+                      const hasOverride = !!manualTiers[key];
                       return (
                         <JobCard
                           key={key}
@@ -131,6 +132,26 @@ export default function TierBoard({
                           onAssess={onAssess}
                           onAddToTracker={onAddToTracker}
                           isTracked={trackedKeys.has(`${job.company}-${job.title}`.toLowerCase())}
+                          tierOverrideControl={
+                            hasOverride ? (
+                              <div className="flex items-center gap-2">
+                                <label className="text-xs text-slate-500">Move to:</label>
+                                <select
+                                  value={tier.key}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    onSetManualTier(key, val === '' ? null : val);
+                                  }}
+                                  className="text-xs border border-slate-300 rounded-md px-2 py-1 bg-white"
+                                >
+                                  <option value="">Reset (auto)</option>
+                                  <option value="tier1">Tier 1</option>
+                                  <option value="tier2">Tier 2</option>
+                                  <option value="passed">Passed</option>
+                                </select>
+                              </div>
+                            ) : null
+                          }
                         />
                       );
                     })}
