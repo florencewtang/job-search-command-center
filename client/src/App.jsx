@@ -40,6 +40,7 @@ export default function App() {
     return stored ? JSON.parse(stored) : {};
   });
   const [newJobsToday, setNewJobsToday] = useState(0);
+  const [newJobsList, setNewJobsList] = useState([]);
   const [recentStatusUpdates, setRecentStatusUpdates] = useState(() => {
     const stored = localStorage.getItem('jobSearchRecentUpdates');
     return stored ? JSON.parse(stored) : [];
@@ -105,8 +106,9 @@ export default function App() {
           next[key] = today;
         }
       }
-      const newCount = allJobs.filter((job) => next[jobKey(job)] === today).length;
-      setNewJobsToday(newCount);
+      const newJobs = allJobs.filter((job) => next[jobKey(job)] === today);
+      setNewJobsToday(newJobs.length);
+      setNewJobsList(newJobs);
       localStorage.setItem('jobSearchSeenJobs', JSON.stringify(next));
       return next;
     });
@@ -480,6 +482,7 @@ export default function App() {
         <div className="p-6 pb-0">
           <Dashboard
             newJobsToday={newJobsToday}
+            newJobsList={newJobsList}
             tier1Count={tier1Count}
             tier2Count={tier2Count}
             recentStatusUpdates={recentStatusUpdates}
