@@ -17,19 +17,6 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-const APP_PASSWORD = process.env.APP_PASSWORD;
-if (APP_PASSWORD) {
-  app.use((req, res, next) => {
-    const auth = req.headers.authorization;
-    if (auth && auth.startsWith('Basic ')) {
-      const decoded = Buffer.from(auth.slice(6), 'base64').toString();
-      const password = decoded.includes(':') ? decoded.split(':').slice(1).join(':') : decoded;
-      if (password === APP_PASSWORD) return next();
-    }
-    res.setHeader('WWW-Authenticate', 'Basic realm="Job Search"');
-    res.status(401).send('Unauthorized');
-  });
-}
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
